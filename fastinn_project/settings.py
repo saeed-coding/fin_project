@@ -106,10 +106,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'fastinn_db',           # name of your database
-        # 'USER': 'saeed',
-        # 'PASSWORD': 'django123',
-        'USER': 'postgres',
-        'PASSWORD': 'ubuntu_1122',  # your PostgreSQL password
+        'USER': 'saeed',
+        'PASSWORD': 'django123',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'ubuntu_1122',  # your PostgreSQL password
         'HOST': 'localhost',      # or use IP address if remote
         'PORT': '5432',           # default PostgreSQL port
     }
