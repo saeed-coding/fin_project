@@ -1,16 +1,22 @@
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from .serializers import GetDataSerializer, CSVUploadSerializer
+from django.contrib.auth.decorators import login_required
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from helper import save_data
 from .models import FastinnData
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
 
 
 # Create your views here.
 @api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def get_data(request):
     queryset = FastinnData.objects.all()
 
@@ -35,6 +41,8 @@ def get_data(request):
     return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def get_single_entry(request, pk):
     try:
         entry = FastinnData.objects.get(pk=pk)
@@ -45,6 +53,8 @@ def get_single_entry(request, pk):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def search_data(request):
     queryset = FastinnData.objects.all()
     search_query = request.query_params.get('heimilisfang')
@@ -58,6 +68,7 @@ def search_data(request):
 
 
 class CSVUploadView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = CSVUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

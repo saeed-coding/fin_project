@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'fastinn_app',
     'rest_framework',
     'corsheaders',
+    'rest_framework.authtoken',
     # 'django.contrib.auth',
     # 'rest_framework.authtoken',
 ]
@@ -111,10 +112,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'fastinn_db',           # name of your database
-        # 'USER': 'saeed',
-        # 'PASSWORD': 'django123',
-        'USER': 'postgres',
-        'PASSWORD': 'ubuntu_1122',
+        'USER': 'saeed',
+        'PASSWORD': 'django123',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'ubuntu_1122',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -165,8 +166,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 # AUTH_USER_MODEL = 'users.User'

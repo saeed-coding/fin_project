@@ -41,3 +41,4 @@ def save_data(csv_file):
     # Append data
     df.to_sql("fastinn_data", engine, if_exists="append", index=False)
     print(f"Inserted {len(df)} records into Postgres.")
+    return len(df)

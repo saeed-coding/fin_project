@@ -10,7 +10,7 @@ urlpatterns = [
     path('fin/search_data', search_data, name='search_data'),
     path('fin/upload_file', CSVUploadView.as_view(), name='upload_file'),
     # path('fin/register', register, name='register'),
-    path('fin/login', login, name='login'),
+    path('fin/login', LoginView.as_view(), name='login'),
 
 
 ]
