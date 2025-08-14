@@ -6,7 +6,7 @@ class GetDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FastinnData
         fields = "__all__"
-        # fields = ("postnr", "emnr", "heimilisfang", "kaupverd", "fjherb", "kaupverd")
+        # fields = ("postnr", "heimilisfang", "kaupverd", "tegund", "kaupverd")
 
 
 

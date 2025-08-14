@@ -17,4 +17,4 @@ def add_user(username, password):
 
 
 if __name__ == "__main__":
-    add_user("admin2", "admin1234")
+    add_user("Admin123", "Admin123")
