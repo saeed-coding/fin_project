@@ -1,13 +1,12 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import F
-from .models import FastinnData
-from .serializers import GetDataSerializer
+from .serializers import GetDataSerializer, CSVUploadSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import status
+from helper import save_data
+from .models import FastinnData
+
 
 # Create your views here.
 @api_view(['GET'])
@@ -43,3 +42,31 @@ def get_single_entry(request, pk):
 
     serializer = GetDataSerializer(entry)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def search_data(request):
+    queryset = FastinnData.objects.all()
+    search_query = request.query_params.get('heimilisfang')
+    if search_query:
+        queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
+    paginator = PageNumberPagination()
+    paginator.page_size = 20
+    result_page = paginator.paginate_queryset(queryset, request)
+    serializer = GetDataSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
+
+class CSVUploadView(APIView):
+    def post(self, request):
+        serializer = CSVUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        csv_file = serializer.validated_data['file']
+
+        # Call the external function
+        rows_inserted = save_data(csv_file)
+
+        return Response({
+            "message": "CSV uploaded successfully",
+            "rows_inserted": rows_inserted
+        }, status=status.HTTP_201_CREATED)

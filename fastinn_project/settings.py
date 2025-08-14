@@ -13,45 +13,7 @@ SECRET_KEY = 'django-insecure-m2qmpos*s+1h6cl2)d1nhy%830ngek7^2w)4!edlk-m-r!$4&r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
-CORS_ALLOW_CREDENTIALS = True  # Allow cookies/auth headers
-CORS_ALLOW_METHODS = [
-    "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-    "cache-control",
-    "betting-site-access",  # ✅ Added this header
-    "x-forwarded-for",
-    "x-forwarded-proto",
-    "referer",
-]
-
-# Additional CORS settings for better compatibility
-CORS_PREFLIGHT_MAX_AGE = 86400
-CORS_EXPOSE_HEADERS = [
-    "content-type",
-    "x-csrftoken",
-]
-
-# CSRF Configuration
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://144.172.94.64",  # Added your server IP
-]
-
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -65,7 +27,8 @@ INSTALLED_APPS = [
     'users',
     'fastinn_app',
     'rest_framework',
-    'rest_framework.authtoken',
+    # 'django.contrib.auth',
+    # 'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -109,9 +72,9 @@ DATABASES = {
         # 'USER': 'saeed',
         # 'PASSWORD': 'django123',
         'USER': 'postgres',
-        'PASSWORD': 'ubuntu_1122',  # your PostgreSQL password
-        'HOST': 'localhost',      # or use IP address if remote
-        'PORT': '5432',           # default PostgreSQL port
+        'PASSWORD': 'ubuntu_1122',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -164,4 +127,4 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
-AUTH_USER_MODEL = 'users.User'
+# AUTH_USER_MODEL = 'users.User'

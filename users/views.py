@@ -1,60 +1,31 @@
-from rest_framework import generics
-# from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, ProfileSerializer, ChangePasswordSerializer, LoginSerializer
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.views import APIView
 from rest_framework import status
-
-User = get_user_model()
-
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
+from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 
 
-class LoginView(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data["user"]
-        refresh = RefreshToken.for_user(user)
+@api_view(['POST'])
+def register(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
 
-        return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }, status=status.HTTP_200_OK)
-
-
-class ProfileUpdateView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ProfileSerializer
-
-    def get_object(self):
-        return self.request.user
+    if not username or not password:
+        return Response({"error": "Mising username or password field"}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    user = User.objects.create_user(username=username, password=password)
+    return Response({"message": "User Registered"}, status=status.HTTP_201_CREATED)
 
 
-class ChangePasswordView(APIView):
-    permission_classes = [IsAuthenticated]
+@api_view(['POST'])
+def login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
 
-    def post(self, request):
-        serializer = ChangePasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+    if authenticate(username=username, password=password):
+        return Response({"message": "Login Successful"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Invalid username or Password"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        user = request.user
-        if not user.check_password(serializer.validated_data["old_password"]):
-            return Response(
-                {"old_password": "Wrong password"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        user.set_password(serializer.validated_data["new_password"])
-        user.save()
-        return Response(
-            {"detail": "Password updated successfully"},
-            status=status.HTTP_200_OK
-        )
