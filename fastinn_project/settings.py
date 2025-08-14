@@ -34,6 +34,7 @@ CORS_ALLOW_HEADERS = [
     "x-forwarded-for",
     "x-forwarded-proto",
     "referer",
+    "Access-Control-Allow-Origin"
 ]
 
 # Additional CORS settings for better compatibility
