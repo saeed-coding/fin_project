@@ -5,8 +5,8 @@ from .models import FastinnData
 class GetDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FastinnData
-        # fields = "__all__"
-        fields = ("id", "postnr", "heimilisfang", "kaupverd", "tegund","einflm", "date")
+        fields = "__all__"
+        # fields = ("id", "postnr", "heimilisfang", "kaupverd", "tegund","einflm", "date")
 
 
 class SingleDataSerializer(serializers.ModelSerializer):
