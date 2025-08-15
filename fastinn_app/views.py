@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
-from .serializers import GetDataSerializer, CSVUploadSerializer
+from .serializers import GetDataSerializer, CSVUploadSerializer, SingleDataSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -48,7 +48,8 @@ def get_single_entry(request, pk):
     except FastinnData.DoesNotExist:
         return Response({'error': 'Entry not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = GetDataSerializer(entry)
+    # serializer = GetDataSerializer(entry)
+    serializer = SingleDataSerializer(entry)
     return Response(serializer.data)
 
 @api_view(['GET'])
