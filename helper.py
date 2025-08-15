@@ -16,8 +16,8 @@ def save_data(csv_file):
     df['DATE'] = datetime.now().strftime('%Y-%m-%d')
     df['SOURCE'] = "Manual"
 
-    engine = create_engine("postgresql+psycopg2://saeed:django123@localhost:5432/fastinn_db")
-    # engine = create_engine("postgresql+psycopg2://postgres:ubuntu_1122@localhost:5432/fastinn_db")
+    # engine = create_engine("postgresql+psycopg2://saeed:django123@localhost:5432/fastinn_db")
+    engine = create_engine("postgresql+psycopg2://postgres:ubuntu_1122@localhost:5432/fastinn_db")
     inspector = inspect(engine)
 
     # Create table with id if not exists
