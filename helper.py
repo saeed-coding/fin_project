@@ -38,6 +38,9 @@ def save_data(csv_file):
                 conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" TEXT;'))
             print(f"Added missing column: {col}")
 
+    # Delete previous data
+    with engine.begin() as conn:
+        conn.execute(text("TRUNCATE TABLE fastinn_data;"))
     # Append data
     df.to_sql("fastinn_data", engine, if_exists="append", index=False)
     print(f"Inserted {len(df)} records into Postgres.")

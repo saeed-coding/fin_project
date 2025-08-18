@@ -56,11 +56,27 @@ def save_data():
             with engine.begin() as conn:
                 conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" TEXT;'))
             print(f"Added missing column: {col}")
+    today = datetime.now().strftime('%Y-%m-%d')
 
-    # Append data
-    df.to_sql("fastinn_data", engine, if_exists="append", index=False)
+    # ✅ Check if data already exists for today with SOURCE='Manual'
+    with engine.begin() as conn:
+        result = conn.execute(
+            text("SELECT COUNT(*) FROM fastinn_data WHERE \"DATE\" = :date AND \"SOURCE\" = 'Manual'"),
+            {"date": today}
+        ).scalar()
 
-    print(f"Inserted {len(df)} records into Postgres.")
+    if result and result > 0:
+        print(f"⚠️ Data for {today} with SOURCE='Manual' already exists. Skipping insertion.")
+    else:
+        # Delete previous data
+        with engine.begin() as conn:
+            conn.execute(text("TRUNCATE TABLE fastinn_data;"))
+
+        # Append data
+        df.to_sql("fastinn_data", engine, if_exists="append", index=False)
+
+        print(f"Inserted {len(df)} records into Postgres.")
+
     os.remove("downloaded_file.csv")
 
 
