@@ -9,6 +9,8 @@ from .models import FastinnData
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from django.db.models.functions import Cast, NullIf, Trim
+from django.db.models import CharField, FloatField, IntegerField, F, Value
 
 
 
@@ -60,6 +62,46 @@ def search_data(request):
     search_query = request.query_params.get('heimilisfang')
     if search_query:
         queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
+    paginator = PageNumberPagination()
+    paginator.page_size = 20
+    result_page = paginator.paginate_queryset(queryset, request)
+    serializer = GetDataSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def filter_data(request):
+    queryset = FastinnData.objects.all()
+    params = request.query_params
+    price_from = params.get('priceFrom')
+    price_to = params.get('priceTo')
+    sqm_from = params.get('sqmFrom')
+    sqm_to = params.get('sqmTo')
+    year_from = params.get('yearBuiltFrom')
+    year_to = params.get('yearBuiltTo')
+
+    if price_from:
+        price_from = float(price_from) * 1000000
+        queryset = queryset.filter(kaupverd__gte=price_from)
+    if price_to:
+        price_to = float(price_to) * 1000000
+        queryset = queryset.filter(kaupverd__lte=price_to)
+
+    if sqm_from:
+        sqm_from = float(sqm_from)
+        queryset = queryset.filter(einflm__gte=sqm_from)
+    if sqm_to:
+        sqm_to = float(sqm_to)
+        queryset = queryset.filter(einflm__lte=sqm_to)
+
+    if year_from:
+        year_from = int(year_from)
+        queryset = queryset.filter(byggar__gte=year_from)
+    if year_to:
+        year_to = int(year_to)
+        queryset = queryset.filter(byggar__lte=year_to)
+
     paginator = PageNumberPagination()
     paginator.page_size = 20
     result_page = paginator.paginate_queryset(queryset, request)

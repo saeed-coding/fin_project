@@ -13,8 +13,20 @@ def save_data(csv_file):
     # optionally remove temp file
     os.remove(temp_path)
 
-    df['DATE'] = datetime.now().strftime('%Y-%m-%d')
+    df['DATE'] = datetime.now().strftime('%d-%m-%Y')
     df['SOURCE'] = "Manual"
+
+    df["KAUPVERD"] = pd.to_numeric(df["KAUPVERD"], errors="coerce")
+    df["KAUPVERD"] = df["KAUPVERD"] * 1000
+    df["EINFLM"] = pd.to_numeric(df["EINFLM"], errors="coerce").astype(float)
+    df["BYGGAR"] = pd.to_numeric(df["BYGGAR"], errors="coerce")
+    df["fermetravera"] = (df["KAUPVERD"].astype(float) / df["EINFLM"].astype(float)).round(2)
+
+    df["id"] = (
+            df["FAERSLUNUMER"].astype(str) + "_" +
+            df["EMNR"].astype(str) + "_" +
+            df["FASTNUM"].astype(str)
+    )
 
     # engine = create_engine("postgresql+psycopg2://saeed:django123@localhost:5432/fastinn_db")
     engine = create_engine("postgresql+psycopg2://postgres:ubuntu_1122@localhost:5432/fastinn_db")
@@ -24,19 +36,31 @@ def save_data(csv_file):
     with engine.begin() as conn:
         conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS fastinn_data (
-                    id SERIAL PRIMARY KEY
+                    id TEXT PRIMARY KEY
                 );
             """))
 
     # Check existing columns
     existing_cols = [col['name'] for col in inspector.get_columns("fastinn_data")]
-
-    # Add any missing columns
+    dtype_map = {
+        "int64": "BIGINT",
+        "float64": "DOUBLE PRECISION",
+        "object": "TEXT",
+        "datetime64[ns]": "TIMESTAMP",
+        "bool": "BOOLEAN"
+    }
+    # Add missing columns with correct type
     for col in df.columns:
         if col not in existing_cols:
+            # Get dtype of current column
+            dtype = str(df[col].dtype)
+
+            # Map pandas dtype to PostgreSQL type
+            sql_type = dtype_map.get(dtype, "TEXT")  # fallback to TEXT
+
             with engine.begin() as conn:
-                conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" TEXT;'))
-            print(f"Added missing column: {col}")
+                conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" {sql_type};'))
+            print(f"Added missing column: {col} ({sql_type})")
 
     # Delete previous data
     with engine.begin() as conn:
