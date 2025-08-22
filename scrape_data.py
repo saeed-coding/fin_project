@@ -34,6 +34,15 @@ def download_csv():
 
 def save_data():
     df = pd.read_csv("downloaded_file.csv", sep=",", encoding="utf-8-sig")
+    df['POSTNR'] = (
+        df['POSTNR']
+        .apply(lambda x: str(int(x)) if isinstance(x, (float, int)) and not pd.isna(x) else x)  # remove .0
+        .astype(str)
+        .str.strip()
+        .replace({'nan': '-', 'None': '-', '': '-'})
+    )
+    df['HEIMILISFANG'] = df['HEIMILISFANG'].astype(str).str.replace(r'\s+', ' ', regex=True).str.strip()
+
     df["KAUPVERD"] = pd.to_numeric(df["KAUPVERD"], errors="coerce")
     df["KAUPVERD"] = df["KAUPVERD"] * 1000
     df["EINFLM"] = pd.to_numeric(df["EINFLM"], errors="coerce").astype(float)
@@ -75,7 +84,6 @@ def save_data():
 
             # Map pandas dtype to PostgreSQL type
             sql_type = dtype_map.get(dtype, "TEXT")  # fallback to TEXT
-
             with engine.begin() as conn:
                 conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" {sql_type};'))
             print(f"Added missing column: {col} ({sql_type})")

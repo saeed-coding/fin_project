@@ -15,6 +15,14 @@ def save_data(csv_file):
 
     df['DATE'] = datetime.now().strftime('%d-%m-%Y')
     df['SOURCE'] = "Manual"
+    df['POSTNR'] = (
+        df['POSTNR']
+        .apply(lambda x: str(int(x)) if isinstance(x, (float, int)) and not pd.isna(x) else x)  # remove .0
+        .astype(str)
+        .str.strip()
+        .replace({'nan': '-', 'None': '-', '': '-'})
+    )
+    df['HEIMILISFANG'] = df['HEIMILISFANG'].astype(str).str.replace(r'\s+', ' ', regex=True).str.strip()
 
     df["KAUPVERD"] = pd.to_numeric(df["KAUPVERD"], errors="coerce")
     df["KAUPVERD"] = df["KAUPVERD"] * 1000

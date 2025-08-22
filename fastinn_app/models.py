@@ -9,7 +9,7 @@ class FastinnData(models.Model):
     skjalanumer = models.TextField(db_column='SKJALANUMER', blank=True, null=True)  
     fastnum = models.IntegerField(db_column='FASTNUM', blank=True, null=True)
     heimilisfang = models.TextField(db_column='HEIMILISFANG', blank=True, null=True)  
-    postnr = models.FloatField(db_column='POSTNR', blank=True, null=True)
+    postnr = models.CharField(db_column='POSTNR', blank=True, null=True)
     heinum = models.FloatField(db_column='HEINUM', blank=True, null=True)
     svfn = models.IntegerField(db_column='SVFN', blank=True, null=True)
     sveitarfelag = models.TextField(db_column='SVEITARFELAG', blank=True, null=True)  
