@@ -54,19 +54,19 @@ def get_single_entry(request, pk):
     serializer = SingleDataSerializer(entry)
     return Response(serializer.data)
 
-@api_view(['GET'])
-@authentication_classes([])
-@permission_classes([AllowAny])
-def search_data(request):
-    queryset = FastinnData.objects.all()
-    search_query = request.query_params.get('heimilisfang')
-    if search_query:
-        queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
-    paginator = PageNumberPagination()
-    paginator.page_size = 20
-    result_page = paginator.paginate_queryset(queryset, request)
-    serializer = GetDataSerializer(result_page, many=True)
-    return paginator.get_paginated_response(serializer.data)
+# @api_view(['GET'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+# def search_data(request):
+#     queryset = FastinnData.objects.all()
+#     search_query = request.query_params.get('heimilisfang')
+#     if search_query:
+#         queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
+#     paginator = PageNumberPagination()
+#     paginator.page_size = 20
+#     result_page = paginator.paginate_queryset(queryset, request)
+#     serializer = GetDataSerializer(result_page, many=True)
+#     return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -80,6 +80,10 @@ def filter_data(request):
     sqm_to = params.get('sqmTo')
     year_from = params.get('yearBuiltFrom')
     year_to = params.get('yearBuiltTo')
+    search_query = request.query_params.get('heimilisfang')
+
+    if search_query:
+        queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
 
     if price_from:
         price_from = float(price_from) * 1000000
