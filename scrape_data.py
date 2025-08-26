@@ -48,6 +48,8 @@ def save_data():
     df["EINFLM"] = pd.to_numeric(df["EINFLM"], errors="coerce").astype(float)
     df["BYGGAR"] = pd.to_numeric(df["BYGGAR"], errors="coerce")
     df["fermetravera"] = (df["KAUPVERD"].astype(float) / df["EINFLM"].astype(float)).round(2)
+    # Convert text to proper datetime
+    df["THINGLYSTDAGS"] = pd.to_datetime(df["THINGLYSTDAGS"], errors="coerce")
 
     df["id"] = (
             df["FAERSLUNUMER"].astype(str) + "_" +
@@ -84,6 +86,11 @@ def save_data():
 
             # Map pandas dtype to PostgreSQL type
             sql_type = dtype_map.get(dtype, "TEXT")  # fallback to TEXT
+            if "THINGLYSTDAGS" in col:
+                sql_type = "TIMESTAMP"
+            if "KAUPVERD" in col:
+                sql_type = "BIGINT"
+
             with engine.begin() as conn:
                 conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" {sql_type};'))
             print(f"Added missing column: {col} ({sql_type})")

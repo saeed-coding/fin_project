@@ -39,6 +39,10 @@ class GetDataSerializer(serializers.ModelSerializer):
         # Format fermetravera: convert float to string and add 'kr./m²'
         if representation.get('fermetravera') is not None:
             representation['fermetravera'] = str(representation['fermetravera']) + ' kr./m²'
+        if representation.get('thinglystdags') is not None:
+            dt_obj = instance.thinglystdags
+            representation['thinglystdags'] = dt_obj.strftime("%d-%m-%Y %H:%M:%S")
+
 
         return representation
 

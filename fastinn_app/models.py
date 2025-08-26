@@ -14,7 +14,7 @@ class FastinnData(models.Model):
     svfn = models.IntegerField(db_column='SVFN', blank=True, null=True)
     sveitarfelag = models.TextField(db_column='SVEITARFELAG', blank=True, null=True)  
     utgdag = models.TextField(db_column='UTGDAG', blank=True, null=True)  
-    thinglystdags = models.TextField(db_column='THINGLYSTDAGS', blank=True, null=True)  
+    thinglystdags = models.DateTimeField(db_column='THINGLYSTDAGS', blank=True, null=True)
     kaupverd = models.IntegerField(db_column='KAUPVERD', blank=True, null=True)
     fasteignamat = models.TextField(db_column='FASTEIGNAMAT', blank=True, null=True)  
     fasteignamat_gildandi = models.FloatField(db_column='FASTEIGNAMAT_GILDANDI', blank=True, null=True)

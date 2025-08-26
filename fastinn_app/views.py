@@ -12,9 +12,6 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from django.db.models.functions import Cast, NullIf, Trim
 from django.db.models import CharField, FloatField, IntegerField, F, Value
 
-
-
-# Create your views here.
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([AllowAny])
@@ -22,8 +19,18 @@ def get_data(request):
     queryset = FastinnData.objects.all()
 
     # Ordering params from query string
-    order_by = request.query_params.get('order_by')  # column name
-    order_type = request.query_params.get('order_type', 'asc')  # 'asc' or 'desc'
+    params = request.query_params
+    order_by = params.get('order_by')  # column name
+    order_type = params.get('order_type', 'asc')  # 'asc' or 'desc'
+
+    price_from = params.get('priceFrom')
+    price_to = params.get('priceTo')
+    sqm_from = params.get('sqmFrom')
+    sqm_to = params.get('sqmTo')
+    year_from = params.get('yearBuiltFrom')
+    year_to = params.get('yearBuiltTo')
+
+    search_query = params.get('heimilisfang')
 
     if order_by:
         if order_type == 'desc':
@@ -31,6 +38,34 @@ def get_data(request):
         # Defensive: check if order_by is a valid model field name
         if order_by.lstrip('-') in [f.name for f in FastinnData._meta.get_fields()]:
             queryset = queryset.order_by(order_by)
+    else:
+        order_by = "-" + "thinglystdags"
+        queryset = queryset.order_by(order_by)
+
+
+    if search_query:
+        queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
+
+    if price_from:
+        price_from = float(price_from) * 1000000
+        queryset = queryset.filter(kaupverd__gte=price_from)
+    if price_to:
+        price_to = float(price_to) * 1000000
+        queryset = queryset.filter(kaupverd__lte=price_to)
+
+    if sqm_from:
+        sqm_from = float(sqm_from)
+        queryset = queryset.filter(einflm__gte=sqm_from)
+    if sqm_to:
+        sqm_to = float(sqm_to)
+        queryset = queryset.filter(einflm__lte=sqm_to)
+
+    if year_from:
+        year_from = int(year_from)
+        queryset = queryset.filter(byggar__gte=year_from)
+    if year_to:
+        year_to = int(year_to)
+        queryset = queryset.filter(byggar__lte=year_to)
 
     # Pagination
     paginator = PageNumberPagination()
@@ -40,6 +75,33 @@ def get_data(request):
     serializer = GetDataSerializer(result_page, many=True)
 
     return paginator.get_paginated_response(serializer.data)
+
+# Create your views here.
+# @api_view(['GET'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+# def get_data(request):
+#     queryset = FastinnData.objects.all()
+#
+#     # Ordering params from query string
+#     order_by = request.query_params.get('order_by')  # column name
+#     order_type = request.query_params.get('order_type', 'asc')  # 'asc' or 'desc'
+#
+#     if order_by:
+#         if order_type == 'desc':
+#             order_by = '-' + order_by
+#         # Defensive: check if order_by is a valid model field name
+#         if order_by.lstrip('-') in [f.name for f in FastinnData._meta.get_fields()]:
+#             queryset = queryset.order_by(order_by)
+#
+#     # Pagination
+#     paginator = PageNumberPagination()
+#     paginator.page_size = 20  # default page size
+#
+#     result_page = paginator.paginate_queryset(queryset, request)
+#     serializer = GetDataSerializer(result_page, many=True)
+#
+#     return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 @authentication_classes([])

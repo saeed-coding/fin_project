@@ -29,6 +29,7 @@ def save_data(csv_file):
     df["EINFLM"] = pd.to_numeric(df["EINFLM"], errors="coerce").astype(float)
     df["BYGGAR"] = pd.to_numeric(df["BYGGAR"], errors="coerce")
     df["fermetravera"] = (df["KAUPVERD"].astype(float) / df["EINFLM"].astype(float)).round(2)
+    df["THINGLYSTDAGS"] = pd.to_datetime(df["THINGLYSTDAGS"], errors="coerce")
 
     df["id"] = (
             df["FAERSLUNUMER"].astype(str) + "_" +
@@ -65,6 +66,10 @@ def save_data(csv_file):
 
             # Map pandas dtype to PostgreSQL type
             sql_type = dtype_map.get(dtype, "TEXT")  # fallback to TEXT
+            if "THINGLYSTDAGS" in col:
+                sql_type = "TIMESTAMP"
+            if "KAUPVERD" in col:
+                sql_type = "BIGINT"
 
             with engine.begin() as conn:
                 conn.execute(text(f'ALTER TABLE fastinn_data ADD COLUMN "{col}" {sql_type};'))
