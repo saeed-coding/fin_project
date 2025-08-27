@@ -9,8 +9,6 @@ from .models import FastinnData
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from django.db.models.functions import Cast, NullIf, Trim
-from django.db.models import CharField, FloatField, IntegerField, F, Value
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -31,17 +29,6 @@ def get_data(request):
     year_to = params.get('yearBuiltTo')
 
     search_query = params.get('heimilisfang')
-
-    if order_by:
-        if order_type == 'desc':
-            order_by = '-' + order_by
-        # Defensive: check if order_by is a valid model field name
-        if order_by.lstrip('-') in [f.name for f in FastinnData._meta.get_fields()]:
-            queryset = queryset.order_by(order_by)
-    else:
-        order_by = "-" + "thinglystdags"
-        queryset = queryset.order_by(order_by)
-
 
     if search_query:
         queryset = FastinnData.objects.filter(heimilisfang__istartswith=search_query)
@@ -66,6 +53,16 @@ def get_data(request):
     if year_to:
         year_to = int(year_to)
         queryset = queryset.filter(byggar__lte=year_to)
+
+    if order_by:
+        if order_type == 'desc':
+            order_by = '-' + order_by
+        # Defensive: check if order_by is a valid model field name
+        if order_by.lstrip('-') in [f.name for f in FastinnData._meta.get_fields()]:
+            queryset = queryset.order_by(order_by)
+    else:
+        order_by = "-" + "thinglystdags"
+        queryset = queryset.order_by(order_by)
 
     # Pagination
     paginator = PageNumberPagination()
