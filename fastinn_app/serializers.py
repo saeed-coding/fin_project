@@ -11,6 +11,7 @@ from .models import FastinnData
 class GetDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FastinnData
+        # fields = "__all__"
         fields = ("id", "postnr", "heimilisfang", "kaupverd", "tegund", "fastnum", "einflm", "thinglystdags",
                   "onothaefur_samningur", "fermetravera")
 
@@ -38,7 +39,23 @@ class GetDataSerializer(serializers.ModelSerializer):
 
         # Format fermetravera: convert float to string and add 'kr./m²'
         if representation.get('fermetravera') is not None:
-            representation['fermetravera'] = str(representation['fermetravera']) + ' kr./m²'
+            float_fermetravera = representation['fermetravera']
+            int_fermetravera = int(float_fermetravera)
+            remainder = float_fermetravera - int_fermetravera
+            if remainder >= .5:
+                fermetravera = str(int_fermetravera + 1)
+            else:
+                fermetravera = str(int_fermetravera)
+            if len(fermetravera) > 3:
+                formatted_fermetravera = ''
+                for i, digit in enumerate(reversed(fermetravera)):
+                    if i > 0 and i % 3 == 0:
+                        formatted_fermetravera = '.' + formatted_fermetravera
+                    formatted_fermetravera = digit + formatted_fermetravera
+                representation['fermetravera'] = formatted_fermetravera + ' kr./m²'
+            else:
+                representation['fermetravera'] = fermetravera + ' kr./m²'
+            # representation['fermetravera'] = str(representation['fermetravera']) + ' kr./m²'
         if representation.get('thinglystdags') is not None:
             dt_obj = instance.thinglystdags
             representation['thinglystdags'] = dt_obj.strftime("%d-%m-%Y %H:%M:%S")
@@ -74,7 +91,22 @@ class SingleDataSerializer(serializers.ModelSerializer):
 
         # Format fermetravera: convert float to string and add 'kr./m²'
         if representation.get('fermetravera') is not None:
-            representation['fermetravera'] = str(representation['fermetravera']) + ' kr./m²'
+            float_fermetravera = representation['fermetravera']
+            int_fermetravera = int(float_fermetravera)
+            remainder = float_fermetravera - int_fermetravera
+            if remainder >= .5:
+                fermetravera = str(int_fermetravera + 1)
+            else:
+                fermetravera = str(int_fermetravera)
+            if len(fermetravera) > 3:
+                formatted_fermetravera = ''
+                for i, digit in enumerate(reversed(fermetravera)):
+                    if i > 0 and i % 3 == 0:
+                        formatted_fermetravera = '.' + formatted_fermetravera
+                    formatted_fermetravera = digit + formatted_fermetravera
+                representation['fermetravera'] = formatted_fermetravera + ' kr./m²'
+            else:
+                representation['fermetravera'] = fermetravera + ' kr./m²'
 
         return representation
 
